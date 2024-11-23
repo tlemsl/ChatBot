@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server'
 import { ollamaClient } from '@/lib/ollama'
 import { ChatMessageSchema } from '@/types/chat'
+import { z } from 'zod'
+
+const RequestSchema = ChatMessageSchema.extend({
+  model: z.string()
+})
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const result = ChatMessageSchema.safeParse(body)
+    const result = RequestSchema.safeParse(body)
     
     if (!result.success) {
       return NextResponse.json(
@@ -14,6 +19,7 @@ export async function POST(request: Request) {
       )
     }
 
+    ollamaClient.setModel(result.data.model)
     const response = await ollamaClient.chat(result.data.messages)
     return NextResponse.json(response)
   } catch (error) {

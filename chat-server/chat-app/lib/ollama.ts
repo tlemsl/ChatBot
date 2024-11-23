@@ -5,15 +5,21 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434'
 
 export class OllamaClient {
   private readonly baseURL: string
-  private readonly model: string = 'llama3.2' // default model
+  private model: string = 'llama3.2' // default model
 
   constructor() {
     this.baseURL = OLLAMA_HOST
   }
 
+  setModel(model: string) {
+    console.log(`Changing model from ${this.model} to ${model}`)
+    this.model = model
+    console.log(`Model successfully set to: ${this.model}`)
+    return this.model // Optional: return for verification
+  }
+
   async chat(messages: ChatMessage[]): Promise<ChatResponse> {
     try {
-      // Format messages according to Ollama API spec
       const formattedMessages = messages.map(msg => ({
         role: msg.role,
         content: msg.content
@@ -30,12 +36,10 @@ export class OllamaClient {
         }
       })
 
-      // Handle Ollama response format
       if (response.data.error) {
         throw new Error(response.data.error)
       }
 
-      // Transform Ollama response to our ChatResponse format
       return {
         message: {
           role: 'assistant',

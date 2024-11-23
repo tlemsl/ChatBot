@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { ChatMessage } from '@/types/chat'
 import axios from 'axios'
+import { ModelSelector } from '@/components/ModelSelector'
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentModel, setCurrentModel] = useState('llama3.2')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +28,8 @@ export default function Chat() {
 
     try {
       const response = await axios.post('/api/chat', {
-        messages: [...messages, userMessage]
+        messages: [...messages, userMessage],
+        model: currentModel
       })
       
       if (response.data.error) {
@@ -51,6 +54,11 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-screen">
+      <ModelSelector
+        currentModel={currentModel}
+        onModelChange={setCurrentModel}
+        disabled={isLoading}
+      />
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, i) => (
           <div key={i} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
