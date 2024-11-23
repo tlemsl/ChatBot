@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { ChatMessage } from '@/types/chat'
 import axios from 'axios'
 import { ModelSelector } from '@/components/ModelSelector'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -65,7 +67,24 @@ export default function Chat() {
             <div className={`rounded-lg px-4 py-2 max-w-[70%] ${
               message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200'
             }`}>
-              {message.content}
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                className="prose prose-sm max-w-none dark:prose-invert"
+                components={{
+                  pre: ({node, ...props}) => (
+                    <pre className="bg-gray-800 text-white p-2 rounded-md overflow-x-auto">
+                      {props.children}
+                    </pre>
+                  ),
+                  code: ({node, inline, ...props}) => (
+                    inline ? 
+                      <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded" {...props} /> :
+                      <code {...props} />
+                  )
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
             </div>
           </div>
         ))}
